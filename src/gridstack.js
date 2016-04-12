@@ -16,13 +16,13 @@
     }
 })(function($) {
 
-    // == LODASH 
-    
+    // == LODASH
+
     function isString(o) {
-        return o && typeof o === "string";
+        return o && typeof o === 'string';
     }
-    
-    function find(arr, handler) { 
+
+    function find(arr, handler) {
         for (var i = 0; i < arr.length; i++) {
             if (handler(arr[i])) {
                 return arr[i];
@@ -31,7 +31,7 @@
     }
 
     function defaults(obj, obj1) {
-        Object.getOwnPropertyNames(obj1).forEach(function (prop) { 
+        Object.getOwnPropertyNames(obj1).forEach(function(prop) {
             if (typeof obj1[prop] !== 'undefined' && typeof obj[prop] === 'undefined') {
                 obj[prop] = obj1[prop];
             }
@@ -40,55 +40,59 @@
     }
 
     function extend(obj, obj1) {
-        Object.getOwnPropertyNames(obj1).forEach(function (prop) { 
+        Object.getOwnPropertyNames(obj1).forEach(function(prop) {
             obj[prop] = obj1[prop];
         });
         return obj;
     }
-    
+
     function without(arr, el) {
         arr = arr.slice();
         var idx;
         while ((idx = arr.indexOf(el)) >= 0) {
-            arr.splice(idx, 1);            
+            arr.splice(idx, 1);
         }
         return arr;
     }
-    
+
     function clone(obj) {
         var ret = {};
         Object.getOwnPropertyNames(obj).forEach(function(prop) {
-           ret[prop] = obj[prop];
+            ret[prop] = obj[prop];
         });
         return ret;
     }
-    
+
     function sortBy(arr, handler) {
         arr = arr.slice();
-        arr.sort(function(a,b) { 
-           var av = handler(a); 
-           var bv = handler(b);
-           return (av < bv) ? -1 : (av > bv ? 1 : 0); 
-        });     
+        arr.sort(function(a,b) {
+            var av = handler(a);
+            var bv = handler(b);
+            return (av < bv) ? -1 : (av > bv ? 1 : 0);
+        });
         return arr;
     }
-    
+
     function throttle(fun, period) {
         var timeout;
         return function() {
             var context = this;
             var later = function() {
                 timeout = null;
-                if (!immediate) func.apply(context, args);
+                if (!immediate) {
+                    func.apply(context, args);
+                }
             };
             var callNow = !timeout;
             clearTimeout(timeout);
             timeout = setTimeout(later, period);
-            if (callNow) func.apply(context);
+            if (callNow) {
+                func.apply(context);
+            }
         };
     }
 
-    // == /LODASH 
+    // == /LODASH
 
     var scope = window;
 
