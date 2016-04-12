@@ -6,8 +6,8 @@
 */
 
 $gridstack-columns: 12 !default;
-$horizontal_padding: 20px !default;
-$vertical_padding: 10px !default;
+$horizontal_padding: 10px !default;
+$vertical_padding: 20px !default;
 $animation_speed: .3s !default;
 
 @mixin vendor($property, $value...){
