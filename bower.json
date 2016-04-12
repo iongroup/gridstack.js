@@ -14,7 +14,6 @@
     "amd"
   ],
   "dependencies": {
-    "lodash": ">= 3.5.0",
     "jquery": ">= 1.11.0",
     "jquery-ui": ">= 1.11.0"
   },
