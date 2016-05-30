@@ -691,7 +691,7 @@
     var isNested = this.container.closest('.' + opts.itemClass).length > 0;
 
     this.opts = Utils.defaults(opts, {
-      column: parseInt(this.container.attr('data-gs-column')) || 12,
+      column: parseInt(this.container.attr('data-gs-column')) || 24,
       maxRow: parseInt(this.container.attr('data-gs-max-row')) || 0,
       itemClass: 'grid-stack-item',
       placeholderClass: 'grid-stack-placeholder',
