@@ -581,7 +581,7 @@
         var isNested = this.container.closest('.' + opts.itemClass).size() > 0;
 
         this.opts = defaults(opts || {}, {
-            width: parseInt(this.container.attr('data-gs-width')) || 12,
+            width: parseInt(this.container.attr('data-gs-width')) || 24,
             height: parseInt(this.container.attr('data-gs-height')) || 0,
             itemClass: 'grid-stack-item',
             placeholderClass: 'grid-stack-placeholder',
