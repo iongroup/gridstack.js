@@ -1518,7 +1518,7 @@
 
         var heightData = Utils.parseHeight(val);
 
-        if (this.opts.verticalMarginUnit === heightData.unit && this.opts.height === heightData.height) {
+        if (this.opts.verticalMarginUnit === heightData.unit && this.opts.verticalMargin === heightData.height) {
             return ;
         }
         this.opts.verticalMarginUnit = heightData.unit;
@@ -1539,7 +1539,7 @@
         }
         var heightData = Utils.parseHeight(val);
 
-        if (this.opts.cellHeightUnit === heightData.heightUnit && this.opts.height === heightData.height) {
+        if (this.opts.cellHeightUnit === heightData.heightUnit && this.opts.cellHeight === heightData.height) {
             return ;
         }
         this.opts.cellHeightUnit = heightData.unit;
