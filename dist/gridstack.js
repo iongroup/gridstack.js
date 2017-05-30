@@ -613,7 +613,8 @@
             removable: false,
             removeTimeout: 2000,
             verticalMarginUnit: 'px',
-            cellHeightUnit: 'px'
+            cellHeightUnit: 'px',
+            oneColumnModeClass: opts.oneColumnModeClass || 'grid-stack-one-column-mode'
         });
 
         if (this.opts.rtl === 'auto') {
@@ -700,7 +701,7 @@
                 if (oneColumnMode) {
                     return;
                 }
-
+                self.container.addClass(self.opts.oneColumnModeClass);
                 oneColumnMode = true;
 
                 self.grid._sortNodes();
@@ -722,6 +723,7 @@
                     return;
                 }
 
+                self.container.removeClass(self.opts.oneColumnModeClass);
                 oneColumnMode = false;
 
                 if (self.opts.staticGrid) {
