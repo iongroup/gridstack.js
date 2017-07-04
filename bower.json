@@ -14,7 +14,7 @@
   ],
   "dependencies": {
     "jquery": ">= 1.11.0",
-    "jquery-ui": "iongroup/jquery-ui#1.12.0-pre-d2"
+    "jquery-ui": "iongroup/jquery-ui#1.12.0-pre-d4"
   },
   "keywords": [
     "gridstack",
