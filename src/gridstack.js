@@ -1140,15 +1140,20 @@
     if (!this.opts.cellHeight) {
       return ;
     }
+
+    var cssHeight;
     if (!this.opts.verticalMargin) {
-      this.container.css('height', (height * (this.opts.cellHeight)) + this.opts.cellHeightUnit);
+      cssHeight = (height * (this.opts.cellHeight)) + this.opts.cellHeightUnit;
     } else if (this.opts.cellHeightUnit === this.opts.verticalMarginUnit) {
-      this.container.css('height', (height * (this.opts.cellHeight + this.opts.verticalMargin) -
-        this.opts.verticalMargin) + this.opts.cellHeightUnit);
+      cssHeight = (height * (this.opts.cellHeight + this.opts.verticalMargin) -
+          this.opts.verticalMargin) + this.opts.cellHeightUnit;
     } else {
-      this.container.css('height', 'calc(' + ((height * (this.opts.cellHeight)) + this.opts.cellHeightUnit) +
-        ' + ' + ((height * (this.opts.verticalMargin - 1)) + this.opts.verticalMarginUnit) + ')');
+      cssHeight = 'calc(' + ((height * (this.opts.cellHeight)) + this.opts.cellHeightUnit) +
+          ' + ' + ((height * (this.opts.verticalMargin - 1)) + this.opts.verticalMarginUnit) + ')';
     }
+
+    this.container.css('height', cssHeight);
+    this.container.trigger('height-change', [cssHeight]);
   };
 
   GridStack.prototype._setupRemovingTimeout = function(el) {
