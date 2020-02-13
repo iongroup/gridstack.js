@@ -703,6 +703,7 @@
                 }
                 self.container.addClass(self.opts.oneColumnModeClass);
                 oneColumnMode = true;
+                self.container.trigger('oneColumnModeChanged', [oneColumnMode]);
 
                 self.grid._sortNodes();
                 self.grid.nodes.forEach(function(node) {
@@ -725,6 +726,7 @@
 
                 self.container.removeClass(self.opts.oneColumnModeClass);
                 oneColumnMode = false;
+                self.container.trigger('oneColumnModeChanged', [oneColumnMode]);
 
                 if (self.opts.staticGrid) {
                     return;
