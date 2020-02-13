@@ -42,13 +42,14 @@
     "grunt-jscs": "^2.7.0",
     "grunt-protractor-runner": "^3.0.0",
     "grunt-protractor-webdriver": "^0.2.5",
-    "grunt-sass": "^1.1.0",
+    "grunt-sass": "^3.1.0",
     "jasmine-core": "^2.4.1",
     "karma": "^0.13.21",
     "karma-coverage": "^0.5.3",
     "karma-coveralls": "^1.1.2",
     "karma-jasmine": "^0.3.7",
     "karma-phantomjs-launcher": "^1.0.0",
+    "node-sass": "^4.13.1",
     "phantomjs-prebuilt": "^2.1.4",
     "serve-static": "^1.10.2"
   }
