@@ -123,31 +123,6 @@
             return sortBy(nodes, function(n) { return dir * (n.x + n.y * width); });
         },
 
-        createStylesheet: function(id) {
-            var style = document.createElement('style');
-            style.setAttribute('type', 'text/css');
-            style.setAttribute('data-gs-style-id', id);
-            if (style.styleSheet) {
-                style.styleSheet.cssText = '';
-            } else {
-                style.appendChild(document.createTextNode(''));
-            }
-            document.getElementsByTagName('head')[0].appendChild(style);
-            return style.sheet;
-        },
-
-        removeStylesheet: function(id) {
-            $('STYLE[data-gs-style-id=' + id + ']').remove();
-        },
-
-        insertCSSRule: function(sheet, selector, rules, index) {
-            if (typeof sheet.insertRule === 'function') {
-                sheet.insertRule(selector + '{' + rules + '}', index);
-            } else if (typeof sheet.addRule === 'function') {
-                sheet.addRule(selector, rules, index);
-            }
-        },
-
         toBool: function(v) {
             if (typeof v == 'boolean') {
                 return v;
@@ -188,12 +163,6 @@
 
     // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
     Utils.is_intercepted = obsolete(Utils.isIntercepted, 'is_intercepted', 'isIntercepted');
-
-    Utils.create_stylesheet = obsolete(Utils.createStylesheet, 'create_stylesheet', 'createStylesheet');
-
-    Utils.remove_stylesheet = obsolete(Utils.removeStylesheet, 'remove_stylesheet', 'removeStylesheet');
-
-    Utils.insert_css_rule = obsolete(Utils.insertCSSRule, 'insert_css_rule', 'insertCSSRule');
     // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 
     var idSeq = 0;
@@ -643,7 +612,7 @@
             this.container.addClass('grid-stack-nested');
         }
 
-        this._initStyles();
+        this._initMaxHeight();
 
         this.grid = new GridStackEngine(this.opts.width, function(nodes) {
             var maxHeight = 0;
@@ -799,7 +768,6 @@
                     node.el = self.placeholder;
                     node._beforeDragX = node.x;
                     node._beforeDragY = node.y;
-
                     self._updateContainerHeight();
                 } else {
                     if (!self.grid.canMoveNode(node, x, y)) {
@@ -808,6 +776,7 @@
                     self.grid.moveNode(node, x, y);
                     self._updateContainerHeight();
                 }
+                self._setStyleOnElement(self.placeholder);
             };
 
             $(self.container).droppable({
@@ -872,8 +841,8 @@
                     self._prepareElementByNode(el, node);
                     self._updateContainerHeight();
                     self._triggerChangeEvent();
-
                     self.grid.endUpdate();
+                    self._setStyleOnElement(el);
                 }
             });
         }
@@ -908,38 +877,13 @@
         }
     };
 
-    GridStack.prototype._initStyles = function() {
-        if (this._stylesId) {
-            Utils.removeStylesheet(this._stylesId);
-        }
-        this._stylesId = 'gridstack-style-' + (Math.random() * 100000).toFixed();
-        this._styles = Utils.createStylesheet(this._stylesId);
-        if (this._styles !== null) {
-            this._styles._max = 0;
-        }
+    GridStack.prototype._initMaxHeight = function() {
+        this._max = 0;
     };
 
-    GridStack.prototype._updateStyles = function(maxHeight) {
-        if (this._styles === null || typeof this._styles === 'undefined') {
-            return;
-        }
-
-        var prefix = '.' + this.opts._class + ' .' + this.opts.itemClass;
+    GridStack.prototype._getHeight = function(rowIndex, verticalMarginIndex) {
         var self = this;
         var getHeight;
-
-        if (typeof maxHeight == 'undefined') {
-            maxHeight = this._styles._max;
-            this._initStyles();
-            this._updateContainerHeight();
-        }
-        if (!this.opts.cellHeight) { // The rest will be handled by CSS
-            return ;
-        }
-        if (this._styles._max !== 0 && maxHeight <= this._styles._max) {
-            return ;
-        }
-
         if (!this.opts.verticalMargin || this.opts.cellHeightUnit === this.opts.verticalMarginUnit) {
             getHeight = function(nbRows, nbMargins) {
                 return (self.opts.cellHeight * nbRows + self.opts.verticalMargin * nbMargins) +
@@ -956,34 +900,39 @@
             };
         }
 
-        if (this._styles._max === 0) {
-            Utils.insertCSSRule(this._styles, prefix, 'min-height: ' + getHeight(1, 0) + ';', 0);
+        return getHeight(rowIndex, verticalMarginIndex);
+    };
+
+    GridStack.prototype._setStyleOnElement = function(el) {
+        el = $(el);
+        el[0].style.height = this._getHeight(el.attr('data-gs-height'), el.attr('data-gs-height') - 1);
+        el[0].style.minHeight = this._getHeight(el.attr('data-gs-min-height'), el.attr('data-gs-min-height') - 1);
+        el[0].style.maxHeight = this._getHeight(el.attr('data-gs-max-height'), el.attr('data-gs-max-height') - 1);
+        el[0].style.top = this._getHeight(el.attr('data-gs-y'), el.attr('data-gs-y'));
+    };
+
+    GridStack.prototype._updateStyles = function(maxHeight) {
+
+        var prefix = '.' + this.opts._class + ' .' + this.opts.itemClass;
+        var self = this;
+
+        if (typeof maxHeight == 'undefined') {
+            maxHeight = this._max;
+            this._initMaxHeight();
+            this._updateContainerHeight();
         }
 
-        if (maxHeight > this._styles._max) {
-            for (var i = this._styles._max; i < maxHeight; ++i) {
-                Utils.insertCSSRule(this._styles,
-                    prefix + '[data-gs-height="' + (i + 1) + '"]',
-                    'height: ' + getHeight(i + 1, i) + ';',
-                    i
-                );
-                Utils.insertCSSRule(this._styles,
-                    prefix + '[data-gs-min-height="' + (i + 1) + '"]',
-                    'min-height: ' + getHeight(i + 1, i) + ';',
-                    i
-                );
-                Utils.insertCSSRule(this._styles,
-                    prefix + '[data-gs-max-height="' + (i + 1) + '"]',
-                    'max-height: ' + getHeight(i + 1, i) + ';',
-                    i
-                );
-                Utils.insertCSSRule(this._styles,
-                    prefix + '[data-gs-y="' + i + '"]',
-                    'top: ' + getHeight(i, i) + ';',
-                    i
-                );
+        var panes = document.querySelectorAll(prefix);
+        if (this._max === 0) {
+            for (var i = 0; i < panes.length; ++i) {
+                panes[i].style.minHeight = self._getHeight(1, 0);
             }
-            this._styles._max = maxHeight;
+        }
+        for (var j = 0; j < panes.length; ++j) {
+            self._setStyleOnElement(panes[j]);
+        }
+        if (maxHeight > this._max) {
+            this._max = maxHeight;
         }
     };
 
@@ -1090,6 +1039,7 @@
                         node._temporaryRemoved = false;
                     }
                 }
+                self._setStyleOnElement(self.placeholder);
             } else if (event.type == 'resize')  {
                 if (x < 0) {
                     return;
@@ -1127,6 +1077,8 @@
             if (event.type == 'resizestart') {
                 o.find('.grid-stack-item').trigger('resizestart');
             }
+            self._setStyleOnElement(self.placeholder);
+            self._setStyleOnElement(el);
         };
 
         var onEndMoving = function(event, ui) {
@@ -1177,6 +1129,7 @@
                 });
                 o.find('.grid-stack-item').trigger('resizestop');
             }
+            self._setStyleOnElement(o);
         };
 
         el
@@ -1227,7 +1180,6 @@
             _grid: self
         }, triggerAddEvent);
         el.data('_gridstack_node', node);
-
         this._prepareElementByNode(el, node);
     };
 
@@ -1257,7 +1209,7 @@
         this._triggerAddEvent();
         this._updateContainerHeight();
         this._triggerChangeEvent(true);
-
+        this._setStyleOnElement(el);
         return el;
     };
 
@@ -1312,7 +1264,6 @@
         } else {
             this.container.remove();
         }
-        Utils.removeStylesheet(this._stylesId);
         if (this.grid) {
             this.grid = null;
         }
@@ -1413,6 +1364,7 @@
             if (!isNaN(val)) {
                 node.maxHeight = (val || false);
                 el.attr('data-gs-max-height', val);
+                self._setStyleOnElement(el);
             }
         });
         return this;
@@ -1430,6 +1382,7 @@
             if (!isNaN(val)) {
                 node.minHeight = (val || false);
                 el.attr('data-gs-min-height', val);
+                self._setStyleOnElement(el);
             }
         });
         return this;
@@ -1662,8 +1615,8 @@
         'can_be_placed_with_respect_to_height', 'canBePlacedWithRespectToHeight');
     GridStack.prototype._trigger_change_event = obsolete(GridStack.prototype._triggerChangeEvent,
         '_trigger_change_event', '_triggerChangeEvent');
-    GridStack.prototype._init_styles = obsolete(GridStack.prototype._initStyles,
-        '_init_styles', '_initStyles');
+    GridStack.prototype._init__max_height = obsolete(GridStack.prototype._initMaxHeight,
+        '_init_max_height', '_initMaxHeight');
     GridStack.prototype._update_styles = obsolete(GridStack.prototype._updateStyles,
         '_update_styles', '_updateStyles');
     GridStack.prototype._update_container_height = obsolete(GridStack.prototype._updateContainerHeight,
