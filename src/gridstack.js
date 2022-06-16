@@ -905,6 +905,9 @@
 
     GridStack.prototype._setStyleOnElement = function(el) {
         el = $(el);
+        if (el[0].classList.contains('gs-resizing')) {
+            return;
+        }
         el[0].style.height = this._getHeight(el.attr('data-gs-height'), el.attr('data-gs-height') - 1);
         el[0].style.minHeight = this._getHeight(el.attr('data-gs-min-height'), el.attr('data-gs-min-height') - 1);
         el[0].style.maxHeight = this._getHeight(el.attr('data-gs-max-height'), el.attr('data-gs-max-height') - 1);
@@ -1076,6 +1079,7 @@
 
             if (event.type == 'resizestart') {
                 o.find('.grid-stack-item').trigger('resizestart');
+                ui.element.addClass('gs-resizing');
             }
             self._setStyleOnElement(self.placeholder);
             self._setStyleOnElement(el);
@@ -1128,6 +1132,9 @@
                     $(el).data('gridstack').onResizeHandler();
                 });
                 o.find('.grid-stack-item').trigger('resizestop');
+            }
+            if (event.type == 'resizestop') {
+                ui.element.removeClass('gs-resizing');
             }
             self._setStyleOnElement(o);
         };
