@@ -211,6 +211,12 @@
 
     // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
     Utils.is_intercepted = obsolete(Utils.isIntercepted, 'is_intercepted', 'isIntercepted');
+
+    Utils.create_stylesheet = obsolete(Utils.createStylesheet, 'create_stylesheet', 'createStylesheet');
+
+    Utils.remove_stylesheet = obsolete(Utils.removeStylesheet, 'remove_stylesheet', 'removeStylesheet');
+
+    Utils.insert_css_rule = obsolete(Utils.insertCSSRule, 'insert_css_rule', 'insertCSSRule');
     // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 
     var idSeq = 0;
@@ -933,8 +939,15 @@
         }
     };
 
-    GridStack.prototype._initMaxHeight = function() {
-        this._max = 0;
+    GridStack.prototype._initStyles = function() {
+        if (this._stylesId) {
+            Utils.removeStylesheet(this._stylesId);
+        }
+        this._stylesId = 'gridstack-style-' + (Math.random() * 100000).toFixed();
+        this._styles = Utils.createStylesheet(this._stylesId);
+        if (this._styles !== null) {
+            this._styles._max = 0;
+        }
     };
 
     GridStack.prototype._initMaxHeight = function() {
@@ -990,6 +1003,19 @@
         var prefix = '.' + this.opts._class + ' .' + this.opts.itemClass;
         var self = this;
         var getHeight;
+
+        if (typeof maxHeight == 'undefined') {
+            maxHeight = this._styles._max;
+            this._initStyles();
+            this._updateContainerHeight();
+        }
+        if (!this.opts.cellHeight) { // The rest will be handled by CSS
+            return ;
+        }
+        if (this._styles._max !== 0 && maxHeight <= this._styles._max) {
+            return ;
+        }
+
         if (!this.opts.verticalMargin || this.opts.cellHeightUnit === this.opts.verticalMarginUnit) {
             getHeight = function(nbRows, nbMargins) {
                 return (self.opts.cellHeight * nbRows + self.opts.verticalMargin * nbMargins) +
@@ -1029,12 +1055,7 @@
                     'top: ' + getHeight(i, i) + ';'
                 );
             }
-        }
-        for (var j = 0; j < panes.length; ++j) {
-            self._setStyleOnElement(panes[j]);
-        }
-        if (maxHeight > this._max) {
-            this._max = maxHeight;
+            this._styles._max = maxHeight;
         }
     };
 
@@ -1218,8 +1239,6 @@
                 self._setStyleOnElement(self.placeholder);
                 self._setStyleOnElement(el);
             }
-            self._setStyleOnElement(self.placeholder);
-            self._setStyleOnElement(el);
         };
 
         var onEndMoving = function(event, ui) {
@@ -1326,6 +1345,7 @@
             _grid: self
         }, triggerAddEvent);
         el.data('_gridstack_node', node);
+
         this._prepareElementByNode(el, node);
     };
 
