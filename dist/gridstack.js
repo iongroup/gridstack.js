@@ -125,7 +125,8 @@
 
         createStylesheet: function(id) {
             var stylesheet = new CSSStyleSheet();
-            if (document.adoptedStyleSheets && document.adoptedStyleSheets.length === 0) {
+
+            if (!document.adoptedStyleSheets || document.adoptedStyleSheets.length === 0) {
                 document.adoptedStyleSheets = [stylesheet];
             } else {
                 var newSheets = [];
