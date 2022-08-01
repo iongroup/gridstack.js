@@ -125,7 +125,7 @@
 
         createStylesheet: function(id) {
             var stylesheet = new CSSStyleSheet();
-
+            stylesheet._id = id;
             if (!document.adoptedStyleSheets || document.adoptedStyleSheets.length === 0) {
                 document.adoptedStyleSheets = [stylesheet];
             } else {
@@ -139,12 +139,18 @@
             return stylesheet;
         },
 
-        removeStylesheet: function(stylesheet) {
+        removeStylesheet: function(stylesId) {
             var styles = [];
             document.adoptedStyleSheets.forEach(function(style) {
                 styles.push(style);
             });
-            styles.splice(styles.indexOf(stylesheet),1);
+            var indexToRemove = styles.findIndex(function(style) {
+                return style._id === stylesId;
+            });
+            if (indexToRemove < 0) {
+                return;
+            }
+            styles.splice(indexToRemove, 1);
             document.adoptedStyleSheets = styles;
         },
 
@@ -1435,6 +1441,7 @@
         }
         if (Utils.isConstructableStyleSheetSupported()) {
             Utils.removeStylesheet(this._stylesId);
+            this.styles = null;
         }
         if (this.grid) {
             this.grid = null;
