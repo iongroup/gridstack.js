@@ -136,7 +136,7 @@
                 newSheets.push(stylesheet);
                 document.adoptedStyleSheets = newSheets;
             }
-            return stylesheet;
+            return { stylesheet: stylesheet, _max: 0 };
         },
 
         removeStylesheet: function(stylesId) {
@@ -154,15 +154,13 @@
             document.adoptedStyleSheets = styles;
         },
 
-        insertCSSRule: function(sheet, selector, rules) {
-            var concatCSSRules = function() {
-                return Object.values(sheet.cssRules).reduce(function(acc, curr) {
-                    return acc + curr.cssText;
-                }, '') + ' ' + selector + '{' + rules + '}';
-            };
-    
-            if (typeof sheet.replaceSync === 'function') {
-                sheet.replaceSync(concatCSSRules());
+        insertCSSRules: function(sheet, ruleMap) {
+            sheet.css = Object.keys(ruleMap).reduce(function(css, selector) {
+                return css + ' ' + selector + ' {' + ruleMap[selector] + '; }';
+            }, sheet.css || '');
+
+            if (typeof sheet.stylesheet.replaceSync === 'function') {
+                sheet.stylesheet.replaceSync(sheet.css);
             }
         },
 
@@ -222,8 +220,6 @@
     Utils.create_stylesheet = obsolete(Utils.createStylesheet, 'create_stylesheet', 'createStylesheet');
 
     Utils.remove_stylesheet = obsolete(Utils.removeStylesheet, 'remove_stylesheet', 'removeStylesheet');
-
-    Utils.insert_css_rule = obsolete(Utils.insertCSSRule, 'insert_css_rule', 'insertCSSRule');
     // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 
     var idSeq = 0;
@@ -954,7 +950,6 @@
         }
         this._stylesId = 'gridstack-style-' + (Math.random() * 100000).toFixed();
         this._stylesheet = Utils.createStylesheet(this._stylesId);
-        this._stylesheet._max = 0;
     };
 
     GridStack.prototype._initMaxHeight = function() {
@@ -1039,31 +1034,35 @@
             };
         }
 
+        var rulesToInsert = { };
+
         if (this._stylesheet._max === 0) {
-            Utils.insertCSSRule(this._stylesheet, prefix, 'min-height: ' + getHeight(1, 0) + ';');
+            rulesToInsert[prefix] = 'min-height: ' + getHeight(1, 0);
         }
 
         if (maxHeight > this._stylesheet._max) {
             for (var i = this._stylesheet._max; i < maxHeight; ++i) {
-                Utils.insertCSSRule(this._stylesheet,
-                    prefix + '[data-gs-height="' + (i + 1) + '"]',
-                    'height: ' + getHeight(i + 1, i) + ';'
-                );
-                Utils.insertCSSRule(this._stylesheet,
-                    prefix + '[data-gs-min-height="' + (i + 1) + '"]',
-                    'min-height: ' + getHeight(i + 1, i) + ';'
-                );
-                Utils.insertCSSRule(this._stylesheet,
-                    prefix + '[data-gs-max-height="' + (i + 1) + '"]',
-                    'max-height: ' + getHeight(i + 1, i) + ';'
-                );
-                Utils.insertCSSRule(this._stylesheet,
-                    prefix + '[data-gs-y="' + i + '"]',
-                    'top: ' + getHeight(i, i) + ';'
-                );
+                rulesToInsert
+                    [prefix + '[data-gs-height="' + (i + 1) + '"]'] =
+                    'height: ' + getHeight(i + 1, i)
+                ;
+                rulesToInsert
+                    [prefix + '[data-gs-min-height="' + (i + 1) + '"]'] =
+                    'min-height: ' + getHeight(i + 1, i)
+                ;
+                rulesToInsert
+                    [prefix + '[data-gs-max-height="' + (i + 1) + '"]'] =
+                    'max-height: ' + getHeight(i + 1, i)
+                ;
+                rulesToInsert
+                    [prefix + '[data-gs-y="' + i + '"]'] =
+                    'top: ' + getHeight(i, i)
+                ;
             }
             this._stylesheet._max = maxHeight;
         }
+
+        Utils.insertCSSRules(this._stylesheet, rulesToInsert);
     };
 
     GridStack.prototype._updateStylesOnDirtyElements = function(maxHeight) {
