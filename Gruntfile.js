@@ -134,6 +134,6 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.registerTask('default', ['sass', 'cssmin', 'jshint', 'jscs', 'copy', 'uglify', 'doctoc']);
+    grunt.registerTask('default', ['sass', 'cssmin', 'jshint', 'jscs', 'copy', 'uglify'/*, 'doctoc'*/]);
     grunt.registerTask('e2e-test', ['connect', 'protractor_webdriver', 'protractor']);
 };
