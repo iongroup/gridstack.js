@@ -1,5 +1,5 @@
 {
-  "name": "gridstack",
+  "name": "@ionweb/gridstack",
   "version": "0.2.5-d17",
   "description": "gridstack.js is a jQuery plugin for widget layout",
   "main": "dist/gridstack.js",
