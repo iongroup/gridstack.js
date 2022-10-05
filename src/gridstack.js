@@ -155,20 +155,20 @@
         },
 
         insertCSSRule: function(sheet, selector, rules) {
+            var concatCSSRules = function() {
+                return Object.values(sheet.cssRules).reduce(function(acc, curr) {
+                    return acc + curr.cssText;
+                }, '') + ' ' + selector + '{' + rules + '}';
+            };
+    
             if (typeof sheet.replaceSync === 'function') {
-                sheet.replaceSync(Utils.concatCSSRules(sheet, selector, rules));
+                sheet.replaceSync(concatCSSRules());
             }
-        },
-
-        concatCSSRules: function(sheet, selector, rules) {
-            return Object.values(sheet.cssRules).reduce(function(acc, curr) {
-                return acc + curr.cssText;
-            }, '') + ' ' + selector + '{' + rules + '}';
         },
 
         isConstructableStyleSheetSupported: function() {
             try {
-                var stylesheet =  new CSSStyleSheet();
+                var stylesheet = new CSSStyleSheet();
                 if ('replaceSync' in stylesheet) {
                     return true;
                 }
@@ -953,10 +953,8 @@
             Utils.removeStylesheet(this._stylesId);
         }
         this._stylesId = 'gridstack-style-' + (Math.random() * 100000).toFixed();
-        this._styles = Utils.createStylesheet(this._stylesId);
-        if (this._styles !== null) {
-            this._styles._max = 0;
-        }
+        this._stylesheet = Utils.createStylesheet(this._stylesId);
+        this._stylesheet._max = 0;
     };
 
     GridStack.prototype._initMaxHeight = function() {
@@ -1005,7 +1003,7 @@
     };
 
     GridStack.prototype._updateStyleRule = function(maxHeight) {
-        if (this._styles === null || typeof this._styles === 'undefined') {
+        if (!this._stylesheet) {
             return;
         }
 
@@ -1014,14 +1012,14 @@
         var getHeight;
 
         if (typeof maxHeight == 'undefined') {
-            maxHeight = this._styles._max;
+            maxHeight = this._stylesheet._max;
             this._initStyles();
             this._updateContainerHeight();
         }
         if (!this.opts.cellHeight) { // The rest will be handled by CSS
             return ;
         }
-        if (this._styles._max !== 0 && maxHeight <= this._styles._max) {
+        if (this._stylesheet._max !== 0 && maxHeight <= this._stylesheet._max) {
             return ;
         }
 
@@ -1041,30 +1039,30 @@
             };
         }
 
-        if (this._styles._max === 0) {
-            Utils.insertCSSRule(this._styles, prefix, 'min-height: ' + getHeight(1, 0) + ';');
+        if (this._stylesheet._max === 0) {
+            Utils.insertCSSRule(this._stylesheet, prefix, 'min-height: ' + getHeight(1, 0) + ';');
         }
 
-        if (maxHeight > this._styles._max) {
-            for (var i = this._styles._max; i < maxHeight; ++i) {
-                Utils.insertCSSRule(this._styles,
+        if (maxHeight > this._stylesheet._max) {
+            for (var i = this._stylesheet._max; i < maxHeight; ++i) {
+                Utils.insertCSSRule(this._stylesheet,
                     prefix + '[data-gs-height="' + (i + 1) + '"]',
                     'height: ' + getHeight(i + 1, i) + ';'
                 );
-                Utils.insertCSSRule(this._styles,
+                Utils.insertCSSRule(this._stylesheet,
                     prefix + '[data-gs-min-height="' + (i + 1) + '"]',
                     'min-height: ' + getHeight(i + 1, i) + ';'
                 );
-                Utils.insertCSSRule(this._styles,
+                Utils.insertCSSRule(this._stylesheet,
                     prefix + '[data-gs-max-height="' + (i + 1) + '"]',
                     'max-height: ' + getHeight(i + 1, i) + ';'
                 );
-                Utils.insertCSSRule(this._styles,
+                Utils.insertCSSRule(this._stylesheet,
                     prefix + '[data-gs-y="' + i + '"]',
                     'top: ' + getHeight(i, i) + ';'
                 );
             }
-            this._styles._max = maxHeight;
+            this._stylesheet._max = maxHeight;
         }
     };
 
@@ -1443,7 +1441,7 @@
         }
         if (Utils.isConstructableStyleSheetSupported()) {
             Utils.removeStylesheet(this._stylesId);
-            this.styles = null;
+            this._stylesheet = null;
         }
         if (this.grid) {
             this.grid = null;
