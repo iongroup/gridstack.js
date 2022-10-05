@@ -1,3 +1,5 @@
+const sass = require('node-sass');
+
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-sass');
@@ -15,7 +17,8 @@ module.exports = function(grunt) {
     grunt.initConfig({
         sass: {
             options: {
-                outputStyle: 'expanded'
+                outputStyle: 'expanded',
+                implementation: sass
             },
             dist: {
                 files: {
@@ -131,6 +134,6 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.registerTask('default', ['sass', 'cssmin', 'jshint', 'jscs', 'copy', 'uglify', 'doctoc']);
+    grunt.registerTask('default', ['sass', 'cssmin', 'jshint', 'jscs', 'copy', 'uglify'/*, 'doctoc'*/]);
     grunt.registerTask('e2e-test', ['connect', 'protractor_webdriver', 'protractor']);
 };

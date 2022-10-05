@@ -136,7 +136,7 @@
                 newSheets.push(stylesheet);
                 document.adoptedStyleSheets = newSheets;
             }
-            return stylesheet;
+            return { stylesheet: stylesheet, _max: 0 };
         },
 
         removeStylesheet: function(stylesId) {
@@ -154,21 +154,19 @@
             document.adoptedStyleSheets = styles;
         },
 
-        insertCSSRule: function(sheet, selector, rules) {
-            if (typeof sheet.replaceSync === 'function') {
-                sheet.replaceSync(Utils.concatCSSRules(sheet, selector, rules));
-            }
-        },
+        insertCSSRules: function(sheet, ruleMap) {
+            sheet.css = Object.keys(ruleMap).reduce(function(css, selector) {
+                return css + ' ' + selector + ' {' + ruleMap[selector] + '; }';
+            }, sheet.css || '');
 
-        concatCSSRules: function(sheet, selector, rules) {
-            return Object.values(sheet.cssRules).reduce(function(acc, curr) {
-                return acc + curr.cssText;
-            }, '') + ' ' + selector + '{' + rules + '}';
+            if (typeof sheet.stylesheet.replaceSync === 'function') {
+                sheet.stylesheet.replaceSync(sheet.css);
+            }
         },
 
         isConstructableStyleSheetSupported: function() {
             try {
-                var stylesheet =  new CSSStyleSheet();
+                var stylesheet = new CSSStyleSheet();
                 if ('replaceSync' in stylesheet) {
                     return true;
                 }
@@ -222,8 +220,6 @@
     Utils.create_stylesheet = obsolete(Utils.createStylesheet, 'create_stylesheet', 'createStylesheet');
 
     Utils.remove_stylesheet = obsolete(Utils.removeStylesheet, 'remove_stylesheet', 'removeStylesheet');
-
-    Utils.insert_css_rule = obsolete(Utils.insertCSSRule, 'insert_css_rule', 'insertCSSRule');
     // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 
     var idSeq = 0;
@@ -737,6 +733,7 @@
                 }
                 self.container.addClass(self.opts.oneColumnModeClass);
                 oneColumnMode = true;
+                self.container.trigger('oneColumnModeChanged', [oneColumnMode]);
 
                 self.grid._sortNodes();
                 self.grid.nodes.forEach(function(node) {
@@ -759,6 +756,7 @@
 
                 self.container.removeClass(self.opts.oneColumnModeClass);
                 oneColumnMode = false;
+                self.container.trigger('oneColumnModeChanged', [oneColumnMode]);
 
                 if (self.opts.staticGrid) {
                     return;
@@ -951,10 +949,7 @@
             Utils.removeStylesheet(this._stylesId);
         }
         this._stylesId = 'gridstack-style-' + (Math.random() * 100000).toFixed();
-        this._styles = Utils.createStylesheet(this._stylesId);
-        if (this._styles !== null) {
-            this._styles._max = 0;
-        }
+        this._stylesheet = Utils.createStylesheet(this._stylesId);
     };
 
     GridStack.prototype._initMaxHeight = function() {
@@ -1003,7 +998,7 @@
     };
 
     GridStack.prototype._updateStyleRule = function(maxHeight) {
-        if (this._styles === null || typeof this._styles === 'undefined') {
+        if (!this._stylesheet) {
             return;
         }
 
@@ -1012,14 +1007,14 @@
         var getHeight;
 
         if (typeof maxHeight == 'undefined') {
-            maxHeight = this._styles._max;
+            maxHeight = this._stylesheet._max;
             this._initStyles();
             this._updateContainerHeight();
         }
         if (!this.opts.cellHeight) { // The rest will be handled by CSS
             return ;
         }
-        if (this._styles._max !== 0 && maxHeight <= this._styles._max) {
+        if (this._stylesheet._max !== 0 && maxHeight <= this._stylesheet._max) {
             return ;
         }
 
@@ -1039,31 +1034,35 @@
             };
         }
 
-        if (this._styles._max === 0) {
-            Utils.insertCSSRule(this._styles, prefix, 'min-height: ' + getHeight(1, 0) + ';');
+        var rulesToInsert = { };
+
+        if (this._stylesheet._max === 0) {
+            rulesToInsert[prefix] = 'min-height: ' + getHeight(1, 0);
         }
 
-        if (maxHeight > this._styles._max) {
-            for (var i = this._styles._max; i < maxHeight; ++i) {
-                Utils.insertCSSRule(this._styles,
-                    prefix + '[data-gs-height="' + (i + 1) + '"]',
-                    'height: ' + getHeight(i + 1, i) + ';'
-                );
-                Utils.insertCSSRule(this._styles,
-                    prefix + '[data-gs-min-height="' + (i + 1) + '"]',
-                    'min-height: ' + getHeight(i + 1, i) + ';'
-                );
-                Utils.insertCSSRule(this._styles,
-                    prefix + '[data-gs-max-height="' + (i + 1) + '"]',
-                    'max-height: ' + getHeight(i + 1, i) + ';'
-                );
-                Utils.insertCSSRule(this._styles,
-                    prefix + '[data-gs-y="' + i + '"]',
-                    'top: ' + getHeight(i, i) + ';'
-                );
+        if (maxHeight > this._stylesheet._max) {
+            for (var i = this._stylesheet._max; i < maxHeight; ++i) {
+                rulesToInsert
+                    [prefix + '[data-gs-height="' + (i + 1) + '"]'] =
+                    'height: ' + getHeight(i + 1, i)
+                ;
+                rulesToInsert
+                    [prefix + '[data-gs-min-height="' + (i + 1) + '"]'] =
+                    'min-height: ' + getHeight(i + 1, i)
+                ;
+                rulesToInsert
+                    [prefix + '[data-gs-max-height="' + (i + 1) + '"]'] =
+                    'max-height: ' + getHeight(i + 1, i)
+                ;
+                rulesToInsert
+                    [prefix + '[data-gs-y="' + i + '"]'] =
+                    'top: ' + getHeight(i, i)
+                ;
             }
-            this._styles._max = maxHeight;
+            this._stylesheet._max = maxHeight;
         }
+
+        Utils.insertCSSRules(this._stylesheet, rulesToInsert);
     };
 
     GridStack.prototype._updateStylesOnDirtyElements = function(maxHeight) {
@@ -1441,7 +1440,7 @@
         }
         if (Utils.isConstructableStyleSheetSupported()) {
             Utils.removeStylesheet(this._stylesId);
-            this.styles = null;
+            this._stylesheet = null;
         }
         if (this.grid) {
             this.grid = null;
