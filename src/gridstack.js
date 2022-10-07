@@ -1542,9 +1542,6 @@
             if (!isNaN(val)) {
                 node.maxHeight = (val || false);
                 el.attr('data-gs-max-height', val);
-                if (!Utils.isConstructableStyleSheetSupported()) {
-                    self._setStyleOnElement(el);
-                }
             }
         });
         return this;
@@ -1562,9 +1559,6 @@
             if (!isNaN(val)) {
                 node.minHeight = (val || false);
                 el.attr('data-gs-min-height', val);
-                if (!Utils.isConstructableStyleSheetSupported()) {
-                    self._setStyleOnElement(el);
-                }
             }
         });
         return this;
