@@ -112,6 +112,7 @@
             newName + '`. It will be **completely** removed in v1.0.');
     };
 
+    var constructableStyleSheetSupported = null;
     var Utils = {
         isIntercepted: function(a, b) {
             return !(a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y);
@@ -165,15 +166,17 @@
         },
 
         isConstructableStyleSheetSupported: function() {
-            try {
-                var stylesheet = new CSSStyleSheet();
-                if ('replaceSync' in stylesheet) {
-                    return true;
+            if (typeof constructableStyleSheetSupported !== 'boolean') {
+                constructableStyleSheetSupported = false;
+                try {
+                    var stylesheet = new CSSStyleSheet();
+                    if ('replaceSync' in stylesheet) {
+                        constructableStyleSheetSupported = true;
+                    }
+                } catch (error) {
                 }
-                return false;
-            } catch (error) {
-                return false;
             }
+            return constructableStyleSheetSupported;
         },
 
         toBool: function(v) {
