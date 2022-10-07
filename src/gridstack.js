@@ -398,10 +398,10 @@
     GridStackEngine.prototype.addNode = function(node, triggerAddEvent) {
         node = this._prepareNode(node);
 
-        if (typeof node.maxWidth != 'undefined') { node.width = Math.min(node.width, node.maxWidth); }
-        if (typeof node.maxHeight != 'undefined') { node.height = Math.min(node.height, node.maxHeight); }
-        if (typeof node.minWidth != 'undefined') { node.width = Math.max(node.width, node.minWidth); }
-        if (typeof node.minHeight != 'undefined') { node.height = Math.max(node.height, node.minHeight); }
+        if (node.maxWidth) { node.width = Math.min(node.width, node.maxWidth); }
+        if (node.maxHeight) { node.height = Math.min(node.height, node.maxHeight); }
+        if (node.minWidth) { node.width = Math.max(node.width, node.minWidth); }
+        if (node.minHeight) { node.height = Math.max(node.height, node.minHeight); }
 
         node._id = ++idSeq;
         node._dirty = true;
@@ -507,10 +507,10 @@
         if (typeof width != 'number') { width = node.width; }
         if (typeof height != 'number') { height = node.height; }
 
-        if (typeof node.maxWidth != 'undefined') { width = Math.min(width, node.maxWidth); }
-        if (typeof node.maxHeight != 'undefined') { height = Math.min(height, node.maxHeight); }
-        if (typeof node.minWidth != 'undefined') { width = Math.max(width, node.minWidth); }
-        if (typeof node.minHeight != 'undefined') { height = Math.max(height, node.minHeight); }
+        if (node.maxWidth) { width = Math.min(width, node.maxWidth); }
+        if (node.maxHeight) { height = Math.min(height, node.maxHeight); }
+        if (node.minWidth) { width = Math.max(width, node.minWidth); }
+        if (node.minHeight) { height = Math.max(height, node.minHeight); }
 
         if (node.x == x && node.y == y && node.width == width && node.height == height) {
             return node;
@@ -1374,10 +1374,10 @@
         if (typeof width != 'undefined') { el.attr('data-gs-width', width); }
         if (typeof height != 'undefined') { el.attr('data-gs-height', height); }
         if (typeof autoPosition != 'undefined') { el.attr('data-gs-auto-position', autoPosition ? 'yes' : null); }
-        if (typeof minWidth != 'undefined') { el.attr('data-gs-min-width', minWidth); }
-        if (typeof maxWidth != 'undefined') { el.attr('data-gs-max-width', maxWidth); }
-        if (typeof minHeight != 'undefined') { el.attr('data-gs-min-height', minHeight); }
-        if (typeof maxHeight != 'undefined') { el.attr('data-gs-max-height', maxHeight); }
+        if (minWidth) { el.attr('data-gs-min-width', minWidth); }
+        if (maxWidth) { el.attr('data-gs-max-width', maxWidth); }
+        if (minHeight) { el.attr('data-gs-min-height', minHeight); }
+        if (maxHeight) { el.attr('data-gs-max-height', maxHeight); }
         if (typeof id != 'undefined') { el.attr('data-gs-id', id); }
         this.container.append(el);
         this._prepareElement(el, true);
