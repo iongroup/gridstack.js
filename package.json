@@ -1,6 +1,6 @@
 {
   "name": "@ionweb/gridstack",
-  "version": "10.0.1-ion1",
+  "version": "10.0.1-ion2",
   "license": "MIT",
   "author": "Alain Dumesny <alaind831+github@gmail.com> (https://github.com/adumesny)",
   "contributors": [
@@ -34,8 +34,7 @@
     "doc": "doctoc ./README.md && doctoc ./doc/README.md && doctoc ./doc/CHANGES.md",
     "test": "yarn lint && karma start karma.conf.js",
     "lint": "tsc --noEmit && eslint src/*.ts",
-    "reset": "rm -rf dist node_modules",
-    "prepublishOnly": "yarn build"
+    "reset": "rm -rf dist node_modules"
   },
   "keywords": [
     "Typescript",

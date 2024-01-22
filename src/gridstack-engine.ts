@@ -394,7 +394,7 @@ export class GridStackEngine {
     if (saveOrig && this.column < this.defaultColumn && !this._inColumnResize && node._id && this.findCacheLayout(node, this.defaultColumn) === -1) {
       let copy = {...node}; // need _id + positions
       if (copy.autoPosition || copy.x === undefined) { delete copy.x; delete copy.y; }
-      else copy.x = Math.min(11, copy.x);
+      else copy.x = Math.min(this.defaultColumn - 1, copy.x);
       copy.w = Math.min(this.defaultColumn, copy.w || 1);
       this.cacheOneLayout(copy, this.defaultColumn);
     }
