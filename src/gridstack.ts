@@ -48,7 +48,7 @@ export interface CellPosition {
   y: number;
 }
 
-interface GridCSSStyleSheet extends CSSStyleSheet {
+interface GridHTMLStyleElement extends HTMLStyleElement {
   _max?: number; // internal tracker of the max # of rows we created
 }
 
@@ -246,7 +246,7 @@ export class GridStack {
   /** @internal */
   public _gsEventHandler = {};
   /** @internal */
-  protected _styles: GridCSSStyleSheet;
+  protected _styles: GridHTMLStyleElement;
   /** @internal flag to keep cells square during resize */
   protected _isAutoCellHeight: boolean;
   /** @internal limit auto cell resizing method */
