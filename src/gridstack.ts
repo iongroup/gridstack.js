@@ -1523,12 +1523,12 @@ export class GridStack {
     const cellHeightUnit = this.opts.cellHeightUnit;
 
     // these are done once only
-    this.setVar(this.el.parentElement, "--gs-cell-height", `${cellHeight}${cellHeightUnit}`);
+    this.setVar(this.el, "--gs-cell-height", `${cellHeight}${cellHeightUnit}`);
     // content margins
-    this.setVar(this.el.parentElement, "--gs-item-margin-top", `${this.opts.marginTop}${this.opts.marginUnit}`);
-    this.setVar(this.el.parentElement, "--gs-item-margin-bottom", `${this.opts.marginBottom}${this.opts.marginUnit}`);
-    this.setVar(this.el.parentElement, "--gs-item-margin-right", `${this.opts.marginRight}${this.opts.marginUnit}`);
-    this.setVar(this.el.parentElement, "--gs-item-margin-left", `${this.opts.marginLeft}${this.opts.marginUnit}`);
+    this.setVar(this.el, "--gs-item-margin-top", `${this.opts.marginTop}${this.opts.marginUnit}`);
+    this.setVar(this.el, "--gs-item-margin-bottom", `${this.opts.marginBottom}${this.opts.marginUnit}`);
+    this.setVar(this.el, "--gs-item-margin-right", `${this.opts.marginRight}${this.opts.marginUnit}`);
+    this.setVar(this.el, "--gs-item-margin-left", `${this.opts.marginLeft}${this.opts.marginUnit}`);
 
     return this;
   }
