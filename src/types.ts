@@ -432,8 +432,10 @@ export interface GridStackNode extends GridStackWidget {
   _isExternal?: boolean;
   /** @internal Mouse event that's causing moving|resizing */
   _event?: MouseEvent;
-  /** @internal moving vs resizing */
+  /** @internal moving */
   _moving?: boolean;
+  /** @internal resizing */
+  _resizing?: boolean;
   /** @internal true if we jumped down past item below (one time jump so we don't have to totally pass it) */
   _skipDown?: boolean;
   /** @internal original values before a drag/size */
