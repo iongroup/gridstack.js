@@ -16,6 +16,7 @@ export interface DDDraggableOpt {
   handle?: string;
   helper?: 'clone' | HTMLElement | ((event: Event) => HTMLElement);
   cancel?: string;
+  dragElement?: string | HTMLElement;
   // containment?: string | HTMLElement; // TODO: not implemented yet
   // revert?: string | boolean | unknown; // TODO: not implemented yet
   // scroll?: boolean;
@@ -58,8 +59,6 @@ export class DDDraggable extends DDBaseImplement implements HTMLElementExtendOpt
   protected dragScale: DragScaleReciprocal = { x: 1, y: 1 };
   /** @internal */
   protected dragElementOriginStyle: Array<string>;
-  /** @internal */
-  protected dragEl: HTMLElement;
   /** @internal true while we are dragging an item around */
   protected dragging: boolean;
   /** @internal */
@@ -76,14 +75,21 @@ export class DDDraggable extends DDBaseImplement implements HTMLElementExtendOpt
     this.el = el;
     this.option = option;
 
-    // get the element that is actually supposed to be dragged by
-    let handleName = option.handle.substring(1);
-    this.dragEl = el.classList.contains(handleName) ? el : el.querySelector(option.handle) || el;
     // create var event binding so we can easily remove and still look like TS methods (unlike anonymous functions)
     this._mouseDown = this._mouseDown.bind(this);
     this._mouseMove = this._mouseMove.bind(this);
     this._mouseUp = this._mouseUp.bind(this);
     this.enable();
+  }
+
+  /** @internal */
+  protected get dragElement () {
+    let handleName = this.option.handle.substring(1);
+    let dragEl = this.el.classList.contains(handleName) ? this.el : this.el.querySelector(this.option.handle) || this.el;
+    if (this.option.dragElement) {
+      dragEl = this.option.dragElement instanceof HTMLElement ? this.option.dragElement : (document.querySelector(this.option.dragElement) ?? dragEl);
+    }
+    return dragEl;
   }
 
   public on(event: DDDragEvent, callback: (event: DragEvent) => void): void {
@@ -97,10 +103,10 @@ export class DDDraggable extends DDBaseImplement implements HTMLElementExtendOpt
   public enable(): void {
     if (this.disabled === false) return;
     super.enable();
-    this.dragEl.addEventListener('mousedown', this._mouseDown);
+    document.addEventListener('mousedown', this._mouseDown);
     if (isTouch) {
-      this.dragEl.addEventListener('touchstart', touchstart);
-      this.dragEl.addEventListener('pointerdown', pointerdown);
+      document.addEventListener('touchstart', touchstart);
+      document.addEventListener('pointerdown', pointerdown);
       // this.dragEl.style.touchAction = 'none'; // not needed unlike pointerdown doc comment
     }
     this.el.classList.remove('ui-draggable-disabled');
@@ -109,10 +115,10 @@ export class DDDraggable extends DDBaseImplement implements HTMLElementExtendOpt
   public disable(forDestroy = false): void {
     if (this.disabled === true) return;
     super.disable();
-    this.dragEl.removeEventListener('mousedown', this._mouseDown);
+    document.removeEventListener('mousedown', this._mouseDown);
     if (isTouch) {
-      this.dragEl.removeEventListener('touchstart', touchstart);
-      this.dragEl.removeEventListener('pointerdown', pointerdown);
+      document.removeEventListener('touchstart', touchstart);
+      document.removeEventListener('pointerdown', pointerdown);
     }
     if (!forDestroy) this.el.classList.add('ui-draggable-disabled');
   }
@@ -139,6 +145,10 @@ export class DDDraggable extends DDBaseImplement implements HTMLElementExtendOpt
     if (DDManager.mouseHandled) return;
     if (e.button !== 0) return true; // only left click
 
+    if (e.target !== this.dragElement && !this.dragElement.contains(e.target as HTMLElement)) {
+      return;
+    }
+
     // make sure we are not clicking on known object that handles mouseDown, or ones supplied by the user
     if ((e.target as HTMLElement).closest(skipMouseDown)) return true;
     if (this.option.cancel) {
@@ -161,8 +171,8 @@ export class DDDraggable extends DDBaseImplement implements HTMLElementExtendOpt
     document.addEventListener('mousemove', this._mouseMove, true); // true=capture, not bubble
     document.addEventListener('mouseup', this._mouseUp, true);
     if (isTouch) {
-      this.dragEl.addEventListener('touchmove', touchmove);
-      this.dragEl.addEventListener('touchend', touchend);
+      this.dragElement.addEventListener('touchmove', touchmove);
+      this.dragElement.addEventListener('touchend', touchend);
     }
 
     e.preventDefault();
@@ -232,8 +242,8 @@ export class DDDraggable extends DDBaseImplement implements HTMLElementExtendOpt
     document.removeEventListener('mousemove', this._mouseMove, true);
     document.removeEventListener('mouseup', this._mouseUp, true);
     if (isTouch) {
-      this.dragEl.removeEventListener('touchmove', touchmove, true);
-      this.dragEl.removeEventListener('touchend', touchend, true);
+      this.dragElement.removeEventListener('touchmove', touchmove, true);
+      this.dragElement.removeEventListener('touchend', touchend, true);
     }
     if (this.dragging) {
       delete this.dragging;
