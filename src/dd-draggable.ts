@@ -103,10 +103,10 @@ export class DDDraggable extends DDBaseImplement implements HTMLElementExtendOpt
   public enable(): void {
     if (this.disabled === false) return;
     super.enable();
-    document.addEventListener('mousedown', this._mouseDown);
+    this.dragElement.addEventListener('mousedown', this._mouseDown);
     if (isTouch) {
-      document.addEventListener('touchstart', touchstart);
-      document.addEventListener('pointerdown', pointerdown);
+      this.dragElement.addEventListener('touchstart', touchstart);
+      this.dragElement.addEventListener('pointerdown', pointerdown);
       // this.dragEl.style.touchAction = 'none'; // not needed unlike pointerdown doc comment
     }
     this.el.classList.remove('ui-draggable-disabled');
@@ -115,10 +115,10 @@ export class DDDraggable extends DDBaseImplement implements HTMLElementExtendOpt
   public disable(forDestroy = false): void {
     if (this.disabled === true) return;
     super.disable();
-    document.removeEventListener('mousedown', this._mouseDown);
+    this.dragElement.removeEventListener('mousedown', this._mouseDown);
     if (isTouch) {
-      document.removeEventListener('touchstart', touchstart);
-      document.removeEventListener('pointerdown', pointerdown);
+      this.dragElement.removeEventListener('touchstart', touchstart);
+      this.dragElement.removeEventListener('pointerdown', pointerdown);
     }
     if (!forDestroy) this.el.classList.add('ui-draggable-disabled');
   }
@@ -144,10 +144,6 @@ export class DDDraggable extends DDBaseImplement implements HTMLElementExtendOpt
     // don't let more than one widget handle mouseStart
     if (DDManager.mouseHandled) return;
     if (e.button !== 0) return true; // only left click
-
-    if (e.target !== this.dragElement && !this.dragElement.contains(e.target as HTMLElement)) {
-      return;
-    }
 
     // make sure we are not clicking on known object that handles mouseDown, or ones supplied by the user
     if ((e.target as HTMLElement).closest(skipMouseDown)) return true;
