@@ -16,7 +16,7 @@ export interface DDDraggableOpt {
   handle?: string;
   helper?: 'clone' | HTMLElement | ((event: Event) => HTMLElement);
   cancel?: string;
-  dragElement?: string | HTMLElement;
+  dragElement?: HTMLElement;
   // containment?: string | HTMLElement; // TODO: not implemented yet
   // revert?: string | boolean | unknown; // TODO: not implemented yet
   // scroll?: boolean;
@@ -59,6 +59,8 @@ export class DDDraggable extends DDBaseImplement implements HTMLElementExtendOpt
   protected dragScale: DragScaleReciprocal = { x: 1, y: 1 };
   /** @internal */
   protected dragElementOriginStyle: Array<string>;
+  /** @internal */
+  protected dragEl: HTMLElement;
   /** @internal true while we are dragging an item around */
   protected dragging: boolean;
   /** @internal */
@@ -75,21 +77,18 @@ export class DDDraggable extends DDBaseImplement implements HTMLElementExtendOpt
     this.el = el;
     this.option = option;
 
+    // get the element that is actually supposed to be dragged by
+    const handleName = option.handle.substring(1);
+    this.dragEl = el.classList.contains(handleName) ? el : el.querySelector(option.handle) || el;
+    if (option.dragElement) {
+      this.dragEl = option.dragElement;
+    }
+
     // create var event binding so we can easily remove and still look like TS methods (unlike anonymous functions)
     this._mouseDown = this._mouseDown.bind(this);
     this._mouseMove = this._mouseMove.bind(this);
     this._mouseUp = this._mouseUp.bind(this);
     this.enable();
-  }
-
-  /** @internal */
-  protected get dragEl () {
-    let handleName = this.option.handle.substring(1);
-    let dragEl = this.el.classList.contains(handleName) ? this.el : this.el.querySelector(this.option.handle) || this.el;
-    if (this.option.dragElement) {
-      dragEl = this.option.dragElement instanceof HTMLElement ? this.option.dragElement : (document.querySelector(this.option.dragElement) ?? dragEl);
-    }
-    return dragEl;
   }
 
   public on(event: DDDragEvent, callback: (event: DragEvent) => void): void {
