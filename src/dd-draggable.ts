@@ -16,7 +16,6 @@ export interface DDDraggableOpt {
   handle?: string;
   helper?: 'clone' | HTMLElement | ((event: Event) => HTMLElement);
   cancel?: string;
-  dragElement?: HTMLElement;
   // containment?: string | HTMLElement; // TODO: not implemented yet
   // revert?: string | boolean | unknown; // TODO: not implemented yet
   // scroll?: boolean;
@@ -80,9 +79,6 @@ export class DDDraggable extends DDBaseImplement implements HTMLElementExtendOpt
     // get the element that is actually supposed to be dragged by
     const handleName = option.handle.substring(1);
     this.dragEl = el.classList.contains(handleName) ? el : el.querySelector(option.handle) || el;
-    if (option.dragElement) {
-      this.dragEl = option.dragElement;
-    }
 
     // create var event binding so we can easily remove and still look like TS methods (unlike anonymous functions)
     this._mouseDown = this._mouseDown.bind(this);

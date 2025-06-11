@@ -377,8 +377,6 @@ export interface DDDragOpt {
   scroll?: boolean;
   /** prevents dragging from starting on specified elements, listed as comma separated selectors (eg: '.no-drag'). default built in is 'input,textarea,button,select,option' */
   cancel?: string;
-  /** HTMLElement reference for the element to be used for dragging the grid-stack-item */
-  dragElement?: HTMLElement;
 }
 export interface DDDragInOpt extends DDDragOpt {
   /** helper function when dropping: 'clone' or your own method */
